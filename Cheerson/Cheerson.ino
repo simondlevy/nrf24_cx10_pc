@@ -68,6 +68,7 @@
 #include <EEPROM.h>
 #include "iface_nrf24l01.h"
 #include <string.h>
+#include "nRF24L01.h"
 
 
 // ############ Wiring ################
