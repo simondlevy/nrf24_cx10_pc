@@ -30,6 +30,47 @@ static uint8_t CX10_packet_length;
 static uint32_t CX10_packet_period;
 static const uint8_t CX10_tx_rx_id[] = {0xCC,0xCC,0xCC,0xCC,0xCC};
 
+static void CX10_Write_Packet(uint8_t init)
+{
+    uint8_t offset = 0;
+    if(current_protocol == PROTO_CX10_BLUE)
+        offset = 4;
+    packet[0] = init;
+    packet[1] = CX10_txid[0];
+    packet[2] = CX10_txid[1];
+    packet[3] = CX10_txid[2];
+    packet[4] = CX10_txid[3];
+    // packet[5] to [8] (aircraft id) is filled during bind for blue board CX10
+    packet[5+offset] = lowByte(3000-ppm[AILERON]);
+    packet[6+offset]= highByte(3000-ppm[AILERON]);
+    packet[7+offset]= lowByte(3000-ppm[ELEVATOR]);
+    packet[8+offset]= highByte(3000-ppm[ELEVATOR]);
+    packet[9+offset]= lowByte(ppm[THROTTLE]);
+    packet[10+offset]= highByte(ppm[THROTTLE]);
+    packet[11+offset]= lowByte(ppm[RUDDER]);
+    packet[12+offset]= highByte(ppm[RUDDER]);
+    if(ppm[AUX2] > PPM_MAX_COMMAND)
+        packet[12+offset] |= 0x10; // flip flag
+    // rate / mode
+    if(ppm[AUX1] > PPM_MAX_COMMAND) // mode 3 / headless on CX-10A
+        packet[13+offset] = 0x02;
+    else if(ppm[AUX1] < PPM_MIN_COMMAND) // mode 1
+        packet[13+offset] = 0x00;
+    else // mode 2
+        packet[13+offset] = 0x01;
+    packet[14+offset] = 0x00;
+    if(current_protocol == PROTO_CX10_BLUE) {
+        // snapshot (CX10-C)
+        if(ppm[AUX3] < PPM_MAX_COMMAND)
+            packet[13+offset] |= 0x10;
+        // video recording (CX10-C)
+        if(ppm[AUX4] > PPM_MAX_COMMAND)
+            packet[13+offset] |= 0x08;
+    }    
+
+    XN297_WritePayload(packet, CX10_packet_length);
+}
+
 uint32_t process_CX10()
 {
     uint32_t nextPacket = micros() + CX10_packet_period;
@@ -131,43 +172,3 @@ void CX10_bind()
     digitalWrite(LED_BUILTIN, HIGH);
 }
 
-void CX10_Write_Packet(uint8_t init)
-{
-    uint8_t offset = 0;
-    if(current_protocol == PROTO_CX10_BLUE)
-        offset = 4;
-    packet[0] = init;
-    packet[1] = CX10_txid[0];
-    packet[2] = CX10_txid[1];
-    packet[3] = CX10_txid[2];
-    packet[4] = CX10_txid[3];
-    // packet[5] to [8] (aircraft id) is filled during bind for blue board CX10
-    packet[5+offset] = lowByte(3000-ppm[AILERON]);
-    packet[6+offset]= highByte(3000-ppm[AILERON]);
-    packet[7+offset]= lowByte(3000-ppm[ELEVATOR]);
-    packet[8+offset]= highByte(3000-ppm[ELEVATOR]);
-    packet[9+offset]= lowByte(ppm[THROTTLE]);
-    packet[10+offset]= highByte(ppm[THROTTLE]);
-    packet[11+offset]= lowByte(ppm[RUDDER]);
-    packet[12+offset]= highByte(ppm[RUDDER]);
-    if(ppm[AUX2] > PPM_MAX_COMMAND)
-        packet[12+offset] |= 0x10; // flip flag
-    // rate / mode
-    if(ppm[AUX1] > PPM_MAX_COMMAND) // mode 3 / headless on CX-10A
-        packet[13+offset] = 0x02;
-    else if(ppm[AUX1] < PPM_MIN_COMMAND) // mode 1
-        packet[13+offset] = 0x00;
-    else // mode 2
-        packet[13+offset] = 0x01;
-    packet[14+offset] = 0x00;
-    if(current_protocol == PROTO_CX10_BLUE) {
-        // snapshot (CX10-C)
-        if(ppm[AUX3] < PPM_MAX_COMMAND)
-            packet[13+offset] |= 0x10;
-        // video recording (CX10-C)
-        if(ppm[AUX4] > PPM_MAX_COMMAND)
-            packet[13+offset] |= 0x08;
-    }    
-
-    XN297_WritePayload(packet, CX10_packet_length);
-}
