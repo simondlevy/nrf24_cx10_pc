@@ -388,13 +388,7 @@ void loop()
         Serial.println("init protocol complete.");
     }
 
-    // process protocol
-    switch (current_protocol) {
-        case PROTO_CX10_GREEN:
-        case PROTO_CX10_BLUE:
-            timeout = process_CX10(); // returns micros()+6000 for time to next packet. 
-            break;
-    }
+    timeout = process_CX10(); // returns micros()+6000 for time to next packet. 
 
     // updates ppm values out of ISR
     //update_ppm();
@@ -406,49 +400,49 @@ void loop()
     if (stringComplete) {
         //Serial.println(inputString);
         // process string
-        
+
         strcpy(c, inputString.c_str());
         p = strtok_r(c,",",&i); // returns substring up to first "," delimiter
         ppm_cnt=0;
         while (p !=0){
-          //Serial.print(p);
-          int val=strtol(p, &errpt, 10);
-          if (!*errpt) {
-            Serial.print(val);
-            ppm[ppm_cnt]=val;
-          }
-          else
-            Serial.print("x"); // prints "x" if it could not decipher the command. Other values in string may still be assigned.
-          Serial.print(";"); // a separator between ppm values
-          p = strtok_r(NULL,",",&i);
-          ppm_cnt+=1;
+            //Serial.print(p);
+            int val=strtol(p, &errpt, 10);
+            if (!*errpt) {
+                Serial.print(val);
+                ppm[ppm_cnt]=val;
+            }
+            else
+                Serial.print("x"); // prints "x" if it could not decipher the command. Other values in string may still be assigned.
+            Serial.print(";"); // a separator between ppm values
+            p = strtok_r(NULL,",",&i);
+            ppm_cnt+=1;
         }
         Serial.println("."); // prints "." at end of command
-        
+
         // clear the string:
         inputString = "";
         stringComplete = false;
     }
-    
+
     // Read the string from the serial buffer
     while (Serial.available()) {
-      // get the new byte:
-      char inChar = (char)Serial.read();
-      // if the incoming character is a newline, set a flag
-      // so the main loop can do something about it:
-      if (inChar == '\n') {
-        stringComplete = true;
-      }
-      else {      
-        // add it to the inputString:
-        inputString += inChar;
-      }
-      
+        // get the new byte:
+        char inChar = (char)Serial.read();
+        // if the incoming character is a newline, set a flag
+        // so the main loop can do something about it:
+        if (inChar == '\n') {
+            stringComplete = true;
+        }
+        else {      
+            // add it to the inputString:
+            inputString += inChar;
+        }
+
     }
     // wait before sending next packet
     while(micros() < timeout) // timeout for CX-10 blue = 6000microseconds. 
     {
-      //overrun_cnt+=1;
+        //overrun_cnt+=1;
     };
 }
 
