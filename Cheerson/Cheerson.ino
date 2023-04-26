@@ -81,18 +81,6 @@
 
 #define ledPin    13 // LED  - D13
 
-// SPI outputs
-#define MOSI_on PORTD |= _BV(3)  // PD3
-#define MOSI_off PORTD &= ~_BV(3)// PD3
-#define SCK_on PORTD |= _BV(4)   // PD4
-#define SCK_off PORTD &= ~_BV(4) // PD4
-#define CE_on PORTD |= _BV(5)    // PD5
-#define CE_off PORTD &= ~_BV(5)  // PD5
-#define CS_on PORTC |= _BV(1)    // PC1
-#define CS_off PORTC &= ~_BV(1)  // PC1
-// SPI input
-#define  MISO_on (PINC & _BV(0)) // PC0
-
 #define RF_POWER TX_POWER_80mW 
 
 // PPM stream settings
