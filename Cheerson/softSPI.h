@@ -13,20 +13,11 @@
  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#pragma once
+
 #define NOP() __asm__ __volatile__("nop")
 
-void Read_Packet(uint8_t *data, uint8_t length) 
-{
-    uint8_t i;
-    CS_off;
-    spi_write(0x61); // Read RX payload
-    for (i=0;i<length;i++) {
-        data[i]=spi_read();
-    }
-    CS_on;
-}
-
-uint8_t spi_write(uint8_t command) 
+static uint8_t spi_write(uint8_t command) 
 {
     uint8_t result=0;
     uint8_t n=8;
@@ -49,17 +40,8 @@ uint8_t spi_write(uint8_t command)
     return result;
 }
 
-void spi_write_address(uint8_t address, uint8_t data) 
-{
-    CS_off;
-    spi_write(address);
-    NOP();
-    spi_write(data);
-    CS_on;
-}
-
 // read one byte from MISO
-uint8_t spi_read()
+static uint8_t spi_read()
 {
     uint8_t result=0;
     uint8_t i;
@@ -78,7 +60,16 @@ uint8_t spi_read()
     return result;
 }
 
-uint8_t spi_read_address(uint8_t address) 
+static void spi_write_address(uint8_t address, uint8_t data) 
+{
+    CS_off;
+    spi_write(address);
+    NOP();
+    spi_write(data);
+    CS_on;
+}
+
+static uint8_t spi_read_address(uint8_t address) 
 {
     uint8_t result;
     CS_off;

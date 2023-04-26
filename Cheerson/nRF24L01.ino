@@ -13,6 +13,8 @@
  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "softSPI.h"
+
 static uint8_t rf_setup;
 
 uint8_t NRF24L01_WriteReg(uint8_t address, uint8_t data)
