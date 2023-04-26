@@ -69,7 +69,7 @@
 #include <string.h>
 
 #include "iface_nrf24l01.h"
-#include "nRF24L01.h"
+#include "nrf24l01.h"
 
 // ############ Wiring ################
 #define PPM_pin   2  // PPM in

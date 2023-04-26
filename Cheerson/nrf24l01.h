@@ -15,7 +15,7 @@
 
 #pragma once
 
-#include "softSPI.h"
+#include "soft_spi.h"
 
 static uint8_t rf_setup;
 
