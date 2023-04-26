@@ -72,8 +72,6 @@
 #include "nrf24l01.h"
 #include "xn297_emu.h"
 
-// ############ Wiring ################
-#define PPM_pin   2  // PPM in
 //SPI Comm.pins with nRF24L01
 #define MOSI_pin  3  // MOSI - D3
 #define SCK_pin   4  // SCK  - D4
@@ -348,18 +346,11 @@ void setup()
     pinMode(LED_BUILTIN, OUTPUT);
     digitalWrite(LED_BUILTIN, LOW); //start LED off
 
-    pinMode(PPM_pin, INPUT);
     pinMode(MOSI_pin, OUTPUT);
     pinMode(SCK_pin, OUTPUT);
     pinMode(CS_pin, OUTPUT);
     pinMode(CE_pin, OUTPUT);
     pinMode(MISO_pin, INPUT);
-
-    // PPM ISR setup
-    //attachInterrupt(PPM_pin - 2, ISR_ppm, CHANGE);
-    TCCR1A = 0;  //reset timer1
-    TCCR1B = 0;
-    TCCR1B |= (1 << CS11);  //set timer1 to increment every 1 us @ 8MHz, 0.5 us @16MHz
 
     set_txid(false);
 
