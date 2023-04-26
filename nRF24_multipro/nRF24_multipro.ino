@@ -260,9 +260,6 @@ void loop()
           ppm_cnt+=1;
         }
         Serial.println("."); // prints "." at end of command
-        //ppm[0]=
-        
-        
         
         // clear the string:
         inputString = "";
@@ -289,11 +286,6 @@ void loop()
     {
       //overrun_cnt+=1;
     };
-    /* // Compare counter to debug for overruns
-    if ((overrun_cnt<1000)||(stringComplete)) {
-      Serial.println(overrun_cnt);
-    }
-    */
 }
 
 void set_txid(bool renew)
@@ -315,72 +307,13 @@ void selectProtocol()
   
     // wait for multiple complete ppm frames
     ppm_ok = false;
-    /*
-    uint8_t count = 10;
-    while(count) {
-        while(!ppm_ok) {} // wait
-        update_ppm();
-        if(ppm[AUX8] < PPM_MAX_COMMAND) // reset chan released
-            count--;
-        ppm_ok = false;
-    }
-    */
+
     // startup stick commands
-    
     //if(ppm[RUDDER] < PPM_MIN_COMMAND)        // Rudder left
     set_txid(true);                      // Renew Transmitter ID
     
-    // protocol selection
-    /*
-    // Rudder right + Aileron left
-    if(ppm[RUDDER] > PPM_MAX_COMMAND && ppm[AILERON] < PPM_MIN_COMMAND)
-        current_protocol = PROTO_H8_3D; // H8 mini 3D, H20 ...
-    
-    // Elevator down + Aileron right
-    else if(ppm[ELEVATOR] < PPM_MIN_COMMAND && ppm[AILERON] > PPM_MAX_COMMAND)
-        current_protocol = PROTO_YD829; // YD-829, YD-829C, YD-822 ...
-    
-    // Elevator down + Aileron left
-    else if(ppm[ELEVATOR] < PPM_MIN_COMMAND && ppm[AILERON] < PPM_MIN_COMMAND)
-        current_protocol = PROTO_SYMAX5C1; // Syma X5C-1, X11, X11C, X12
-    
-    // Elevator up + Aileron right
-    else if(ppm[ELEVATOR] > PPM_MAX_COMMAND && ppm[AILERON] > PPM_MAX_COMMAND)
-        current_protocol = PROTO_BAYANG;    // EAchine H8(C) mini, BayangToys X6/X7/X9, JJRC JJ850 ...
-    
-    // Elevator up + Aileron left
-    else if(ppm[ELEVATOR] > PPM_MAX_COMMAND && ppm[AILERON] < PPM_MIN_COMMAND) 
-        current_protocol = PROTO_H7;        // EAchine H7, MT99xx
-    
-    // Elevator up  
-    else if(ppm[ELEVATOR] > PPM_MAX_COMMAND)
-        current_protocol = PROTO_V2X2;       // WLToys V202/252/272, JXD 385/388, JJRC H6C ...
-        
-    // Elevator down
-    else if(ppm[ELEVATOR] < PPM_MIN_COMMAND) 
-        current_protocol = PROTO_CG023;      // EAchine CG023/CG031/3D X4, (todo :ATTOP YD-836/YD-836C) ...
-    
-    // Aileron right
-    else if(ppm[AILERON] > PPM_MAX_COMMAND)  
-    */
-    current_protocol = PROTO_CX10_BLUE;  // Cheerson CX10(blue pcb, newer red pcb)/CX10-A/CX11/CX12 ... 
-    /*
-    // Aileron left
-    else if(ppm[AILERON] < PPM_MIN_COMMAND)  
-        current_protocol = PROTO_CX10_GREEN;  // Cheerson CX10(green pcb)... 
-    
-    // read last used protocol from eeprom
-    else 
-        current_protocol = constrain(EEPROM.read(ee_PROTOCOL_ID),0,PROTO_END-1);      
-    */
     // update eeprom 
     EEPROM.update(ee_PROTOCOL_ID, current_protocol);
-    // wait for safe throttle
-    /*while(ppm[THROTTLE] > PPM_SAFE_THROTTLE) {
-        delay(100);
-        update_ppm();
-    }
-    */
 }
 
 void init_protocol()
@@ -419,16 +352,3 @@ void init_protocol()
             break;
     }
 }
-
-/* This function not needed - ppm values are updated in main loop
-// update ppm values out of ISR    
-void update_ppm()
-{
-    for(uint8_t ch=0; ch<CHANNELS; ch++) {
-        ATOMIC_BLOCK(ATOMIC_RESTORESTATE) {
-            ppm[ch] = Servo_data[ch];
-        }
-    }    
-}
-*/
-
