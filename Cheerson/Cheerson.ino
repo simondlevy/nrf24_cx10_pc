@@ -83,7 +83,7 @@ static uint16_t overrun_cnt;
 static uint8_t transmitterID[4];
 static volatile bool ppm_ok = false;
 static uint8_t packet[32];
-static bool reset=true;
+static bool reset = true;
 static volatile uint16_t Servo_data[12];
 static uint16_t ppm[12] = {PPM_MIN,PPM_MID,PPM_MID,PPM_MID,PPM_MID,PPM_MID,
                            PPM_MID,PPM_MID,PPM_MID,PPM_MID,PPM_MID,PPM_MID,};
@@ -130,13 +130,6 @@ static void selectProtocol()
     EEPROM.update(ee_PROTOCOL_ID, current_protocol);
 }
 
-
-
-static void init_protocol()
-{
-    CX10_init();
-    CX10_bind();
-}
 
 static void CX10_Write_Packet(uint8_t init)
 {
@@ -253,7 +246,7 @@ static void CX10_bind()
     uint16_t counter=CX10_GREEN_BIND_COUNT;
     bool bound=false;
     uint32_t timeout;
-    while(!bound) {
+    while (!bound) {
         NRF24L01_SetTxRxMode(TX_EN);
         XN297_Configure(
                 _BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP));
@@ -276,7 +269,7 @@ static void CX10_bind()
                         _BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | 
                         _BV(NRF24L01_00_PWR_UP) | _BV(NRF24L01_00_PRIM_RX));
                 timeout = millis()+5;
-                while(millis()<timeout) {
+                while (millis()<timeout) {
 
                     // data received from aircraft
                     if (NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_RX_DR)) { 
@@ -324,15 +317,22 @@ void loop()
     // reset / rebind
     //Serial.println("begin loop");
     if (reset || ppm[AUX8] > PPM_MAX_COMMAND) {
+
         reset = false;
+
         Serial.println("selecting protocol");
         selectProtocol();        
+
         Serial.println("selected protocol.");
         NRF24L01_Reset();
+
         Serial.println("nrf24l01 reset.");
         NRF24L01_Initialize();
+
         Serial.println("nrf24l01 init.");
-        init_protocol();
+        CX10_init();
+        CX10_bind();
+
         Serial.println("init protocol complete.");
     }
 
@@ -391,7 +391,7 @@ void loop()
 
     }
     // wait before sending next packet
-    while(micros() < timeout) // timeout for CX-10 blue = 6000microseconds. 
+    while (micros() < timeout) // timeout for CX-10 blue = 6000microseconds. 
     {
         //overrun_cnt+=1;
     };
