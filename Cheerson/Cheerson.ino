@@ -372,7 +372,6 @@ void setup()
 
 void loop()
 {
-    uint32_t timeout;
     // reset / rebind
     //Serial.println("begin loop");
     if(reset || ppm[AUX8] > PPM_MAX_COMMAND) {
@@ -388,7 +387,7 @@ void loop()
         Serial.println("init protocol complete.");
     }
 
-    timeout = process_CX10(); // returns micros()+6000 for time to next packet. 
+    uint32_t timeout = process_CX10(); // returns micros()+6000 for time to next packet. 
 
     // updates ppm values out of ISR
     //update_ppm();
