@@ -13,13 +13,11 @@
  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <RF24.h>
 #include <util/atomic.h>
 #include <EEPROM.h>
 #include <string.h>
 
-#include "iface_nrf24l01.h"
-#include "nrf24l01.h"
-#include "xn297_emu.h"
 
 // supported protocols
 enum {
@@ -29,8 +27,8 @@ enum {
 
 static uint8_t current_protocol = PROTO_CX10_GREEN; // XXX PROTO_CX10_BLUE ???
 
-static const uint8_t CE_pin   = 5; 
-static const uint8_t CS_pin   = A1;
+static const uint8_t CE_pin   = 9;   
+static const uint8_t CSN_pin  = SS;  // Use Teensy's SS (10) pin for CSN (ChipSelectNot)
 
 static const TX_Power RF_POWER = TX_POWER_80mW;
 
@@ -170,6 +168,7 @@ static void CX10_Write_Packet(uint8_t init)
 static uint32_t process_CX10()
 {
     uint32_t nextPacket = micros() + CX10_packet_period;
+
     XN297_Configure(
             _BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP));
 
