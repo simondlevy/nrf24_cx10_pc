@@ -122,23 +122,23 @@ enum{
     ee_TXID3
 };
 
-uint16_t overrun_cnt=0;
-uint8_t transmitterID[4];
 uint8_t current_protocol;
+
+static uint16_t overrun_cnt;
+static uint8_t transmitterID[4];
 static volatile bool ppm_ok = false;
-uint8_t packet[32];
+static uint8_t packet[32];
 static bool reset=true;
-volatile uint16_t Servo_data[12];
+static volatile uint16_t Servo_data[12];
 static uint16_t ppm[12] = {PPM_MIN,PPM_MID,PPM_MID,PPM_MID,PPM_MID,PPM_MID,
                            PPM_MID,PPM_MID,PPM_MID,PPM_MID,PPM_MID,PPM_MID,};
 
-String inputString = "";         // a string to hold incoming data
-boolean stringComplete = false;  // whether the string is complete
-char *p, *i;
-char* c = new char[200 + 1]; // match 200 characters reserved for inputString later
-char* errpt;
-uint8_t ppm_cnt;
-
+static String inputString = "";         // a string to hold incoming data
+static boolean stringComplete = false;  // whether the string is complete
+static char *p, *i;
+static char* c = new char[200 + 1]; // match 200 characters reserved for inputString later
+static char* errpt;
+static uint8_t ppm_cnt;
 
 void setup()
 {
