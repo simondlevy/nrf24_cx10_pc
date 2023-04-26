@@ -27,13 +27,9 @@ enum {
     PROTO_CX10_GREEN,   // Cheerson CX-10 green board
 };
 
-static uint8_t current_protocol = PROTO_CX10_GREEN; // XXX
+static uint8_t current_protocol = PROTO_CX10_GREEN; // XXX PROTO_CX10_BLUE ???
 
-//SPI Comm.pins with nRF24L01
-static const uint8_t MOSI_pin = 3; // D3
-static const uint8_t SCK_pin  = 4; // D4
-static const uint8_t CE_pin   = 5; // D5
-static const uint8_t MISO_pin = A0; 
+static const uint8_t CE_pin   = 5; 
 static const uint8_t CS_pin   = A1;
 
 static const TX_Power RF_POWER = TX_POWER_80mW;
@@ -129,7 +125,6 @@ static void selectProtocol()
     // update eeprom 
     EEPROM.update(ee_PROTOCOL_ID, current_protocol);
 }
-
 
 static void CX10_Write_Packet(uint8_t init)
 {
@@ -297,11 +292,8 @@ void setup()
     pinMode(LED_BUILTIN, OUTPUT);
     digitalWrite(LED_BUILTIN, LOW); //start LED off
 
-    pinMode(MOSI_pin, OUTPUT);
-    pinMode(SCK_pin, OUTPUT);
     pinMode(CS_pin, OUTPUT);
     pinMode(CE_pin, OUTPUT);
-    pinMode(MISO_pin, INPUT);
 
     set_txid(false);
 
@@ -332,7 +324,6 @@ void loop()
         Serial.println("nrf24l01 init.");
         CX10_init();
         CX10_bind();
-
         Serial.println("init protocol complete.");
     }
 
