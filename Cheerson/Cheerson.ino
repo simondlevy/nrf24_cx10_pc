@@ -66,10 +66,10 @@
 
 #include <util/atomic.h>
 #include <EEPROM.h>
-#include "iface_nrf24l01.h"
 #include <string.h>
-#include "nRF24L01.h"
 
+#include "iface_nrf24l01.h"
+#include "nRF24L01.h"
 
 // ############ Wiring ################
 #define PPM_pin   2  // PPM in
@@ -79,8 +79,6 @@
 #define CE_pin    5  // CE   - D5
 #define MISO_pin  A0 // MISO - A0
 #define CS_pin    A1 // CS   - A1
-
-#define ledPin    13 // LED  - D13
 
 #define RF_POWER TX_POWER_80mW 
 
@@ -146,8 +144,8 @@ void setup()
 {
     randomSeed((analogRead(A4) & 0x1F) | (analogRead(A5) << 5));
 
-    pinMode(ledPin, OUTPUT);
-    digitalWrite(ledPin, LOW); //start LED off
+    pinMode(LED_BUILTIN, OUTPUT);
+    digitalWrite(LED_BUILTIN, LOW); //start LED off
 
     pinMode(PPM_pin, INPUT);
     pinMode(MOSI_pin, OUTPUT);
