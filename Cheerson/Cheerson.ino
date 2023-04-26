@@ -158,7 +158,7 @@ static void set_txid(bool renew)
     uint8_t i;
     for(i=0; i<4; i++)
         transmitterID[i] = EEPROM.read(ee_TXID0+i);
-    if(renew || (transmitterID[0]==0xFF && transmitterID[1]==0x0FF)) {
+    if (renew || (transmitterID[0]==0xFF && transmitterID[1]==0x0FF)) {
         for(i=0; i<4; i++) {
             transmitterID[i] = random() & 0xFF;
             EEPROM.update(ee_TXID0+i, transmitterID[i]); 
@@ -174,7 +174,7 @@ static void selectProtocol()
     ppm_ok = false;
 
     // startup stick commands
-    //if(ppm[RUDDER] < PPM_MIN_COMMAND)        // Rudder left
+    //if (ppm[RUDDER] < PPM_MIN_COMMAND)        // Rudder left
     set_txid(true);                      // Renew Transmitter ID
     
     // update eeprom 
@@ -185,21 +185,14 @@ static void selectProtocol()
 
 static void init_protocol()
 {
-    switch(current_protocol) {
-
-        case PROTO_CX10_GREEN:
-        case PROTO_CX10_BLUE:
-            CX10_init();
-            CX10_bind();
-            Serial.println("cx10-initialized and bound");
-            break;
-    }
+    CX10_init();
+    CX10_bind();
 }
 
 static void CX10_Write_Packet(uint8_t init)
 {
     uint8_t offset = 0;
-    if(current_protocol == PROTO_CX10_BLUE)
+    if (current_protocol == PROTO_CX10_BLUE)
         offset = 4;
     packet[0] = init;
     packet[1] = CX10_txid[0];
@@ -215,22 +208,22 @@ static void CX10_Write_Packet(uint8_t init)
     packet[10+offset]= highByte(ppm[THROTTLE]);
     packet[11+offset]= lowByte(ppm[RUDDER]);
     packet[12+offset]= highByte(ppm[RUDDER]);
-    if(ppm[AUX2] > PPM_MAX_COMMAND)
+    if (ppm[AUX2] > PPM_MAX_COMMAND)
         packet[12+offset] |= 0x10; // flip flag
     // rate / mode
-    if(ppm[AUX1] > PPM_MAX_COMMAND) // mode 3 / headless on CX-10A
+    if (ppm[AUX1] > PPM_MAX_COMMAND) // mode 3 / headless on CX-10A
         packet[13+offset] = 0x02;
-    else if(ppm[AUX1] < PPM_MIN_COMMAND) // mode 1
+    else if (ppm[AUX1] < PPM_MIN_COMMAND) // mode 1
         packet[13+offset] = 0x00;
     else // mode 2
         packet[13+offset] = 0x01;
     packet[14+offset] = 0x00;
-    if(current_protocol == PROTO_CX10_BLUE) {
+    if (current_protocol == PROTO_CX10_BLUE) {
         // snapshot (CX10-C)
-        if(ppm[AUX3] < PPM_MAX_COMMAND)
+        if (ppm[AUX3] < PPM_MAX_COMMAND)
             packet[13+offset] |= 0x10;
         // video recording (CX10-C)
-        if(ppm[AUX4] > PPM_MAX_COMMAND)
+        if (ppm[AUX4] > PPM_MAX_COMMAND)
             packet[13+offset] |= 0x08;
     }    
 
@@ -309,7 +302,7 @@ static void CX10_bind()
         switch(current_protocol) {
             case PROTO_CX10_GREEN:
                 delayMicroseconds(CX10_packet_period);
-                if(counter==0)
+                if (counter==0)
                     bound = true;
                 break;
             case PROTO_CX10_BLUE:
@@ -320,9 +313,9 @@ static void CX10_bind()
                 XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP) | _BV(NRF24L01_00_PRIM_RX));
                 timeout = millis()+5;
                 while(millis()<timeout) {
-                    if(NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_RX_DR)) { // data received from aircraft
+                    if (NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_RX_DR)) { // data received from aircraft
                         XN297_ReadPayload(packet, CX10_packet_length);
-                        if( packet[9] == 0x01)
+                        if ( packet[9] == 0x01)
                         bound = true;
                         break;
                     }
@@ -330,7 +323,7 @@ static void CX10_bind()
                 break;
         }
         digitalWrite(LED_BUILTIN, counter-- & 0x10);
-        if(ppm[AUX8] > PPM_MAX_COMMAND) {
+        if (ppm[AUX8] > PPM_MAX_COMMAND) {
             reset = true;
             return;
         }
@@ -364,7 +357,7 @@ void loop()
 {
     // reset / rebind
     //Serial.println("begin loop");
-    if(reset || ppm[AUX8] > PPM_MAX_COMMAND) {
+    if (reset || ppm[AUX8] > PPM_MAX_COMMAND) {
         reset = false;
         Serial.println("selecting protocol");
         selectProtocol();        
