@@ -73,24 +73,24 @@
 #include "xn297_emu.h"
 
 //SPI Comm.pins with nRF24L01
-#define MOSI_pin  3  // MOSI - D3
-#define SCK_pin   4  // SCK  - D4
-#define CE_pin    5  // CE   - D5
-#define MISO_pin  A0 // MISO - A0
-#define CS_pin    A1 // CS   - A1
+static const uint8_t MOSI_pin = 3; // D3
+static const uint8_t SCK_pin  = 4; // D4
+static const uint8_t CE_pin   = 5; // D5
+static const uint8_t MISO_pin = A0; 
+static const uint8_t CS_pin   = A1;
 
-#define RF_POWER TX_POWER_80mW 
+static const TX_Power RF_POWER = TX_POWER_80mW;
 
-#define CX10_GREEN_PACKET_LENGTH 15
-#define CX10_BLUE_PACKET_LENGTH 19
-#define CX10_BLUE_PACKET_PERIOD 6000
-#define CX10_GREEN_PACKET_PERIOD 3000
-#define CX10_GREEN_BIND_COUNT 1000
-#define CX10_RF_BIND_CHANNEL 0x02
-#define CX10_NUM_RF_CHANNELS    4
+static const uint32_t CX10_GREEN_PACKET_LENGTH = 15;
+static const uint32_t CX10_BLUE_PACKET_LENGTH = 19;
+static const uint32_t CX10_BLUE_PACKET_PERIOD = 6000;
+static const uint32_t CX10_GREEN_PACKET_PERIOD = 3000;
+static const uint32_t CX10_GREEN_BIND_COUNT = 1000;
+static const uint8_t  CX10_RF_BIND_CHANNEL = 0x02;
+static const uint32_t CX10_NUM_RF_CHANNELS = 4;
 
 // PPM stream settings
-#define CHANNELS 12 // number of channels in ppm stream, 12 ideally
+static const uint8_t CHANNELS = 12; // number of channels in ppm stream, 12 ideally
 enum chan_order{
     THROTTLE,
     AILERON,
@@ -106,13 +106,12 @@ enum chan_order{
     AUX8,  // (CH12) Reset / Rebind
 };
 
-#define PPM_MIN 1000
-#define PPM_SAFE_THROTTLE 1050 
-#define PPM_MID 1500
-#define PPM_MAX 2000
-#define PPM_MIN_COMMAND 1300
-#define PPM_MAX_COMMAND 1700
-#define GET_FLAG(ch, mask) (ppm[ch] > PPM_MAX_COMMAND ? mask : 0)
+static const uint16_t PPM_MIN = 1000;
+static const uint16_t PPM_SAFE_THROTTLE = 1050;
+static const uint16_t PPM_MID = 1500;
+static const uint16_t PPM_MAX = 2000;
+static const uint16_t PPM_MIN_COMMAND = 1300;
+static const uint16_t PPM_MAX_COMMAND = 1700;
 
 // supported protocols
 enum {
@@ -435,5 +434,3 @@ void loop()
         //overrun_cnt+=1;
     };
 }
-
-
