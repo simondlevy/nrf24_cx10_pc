@@ -27,7 +27,7 @@ enum {
     PROTO_CX10_GREEN,   // Cheerson CX-10 green board
 };
 
-static uint8_t current_protocol;
+static uint8_t current_protocol = PROTO_CX10_BLUE; // XXX
 
 //SPI Comm.pins with nRF24L01
 static const uint8_t MOSI_pin = 3; // D3
@@ -53,13 +53,13 @@ enum chan_order{
     AILERON,
     ELEVATOR,
     RUDDER,
-    AUX1,  // (CH5)  led light, or 3 pos. rate on CX-10, H7, or inverted flight on H101
+    AUX1,  // (CH5)  led light, or 3 pos. rate on CX-10
     AUX2,  // (CH6)  flip control
     AUX3,  // (CH7)  still camera (snapshot)
     AUX4,  // (CH8)  video camera
     AUX5,  // (CH9)  headless
-    AUX6,  // (CH10) calibrate Y (V2x2), pitch trim (H7), RTH (Bayang, H20), 360deg flip mode (H8-3D, H22)
-    AUX7,  // (CH11) calibrate X (V2x2), roll trim (H7)
+    AUX6,  // (CH10) 
+    AUX7,  // (CH11) 
     AUX8,  // (CH12) Reset / Rebind
 };
 
@@ -182,8 +182,11 @@ static void CX10_Write_Packet(uint8_t init)
 static uint32_t process_CX10()
 {
     uint32_t nextPacket = micros() + CX10_packet_period;
-    XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP));
-    NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);     // Clear data ready, data sent, and retransmit
+    XN297_Configure(
+            _BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP));
+
+    // Clear data ready, data sent, and retransmit
+    NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);     
     NRF24L01_FlushTx();
     NRF24L01_WriteReg(NRF24L01_05_RF_CH, CX10_freq[CX10_current_chan++]);
     CX10_current_chan %= CX10_NUM_RF_CHANNELS;
@@ -225,14 +228,23 @@ static void CX10_init()
     XN297_SetTXAddr(CX10_tx_rx_id,5);
     XN297_SetRXAddr(CX10_tx_rx_id,5);
     NRF24L01_FlushTx();
-    NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);     // Clear data ready, data sent, and retransmit
-    NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x00);      // No Auto Acknowledgment on all data pipes
+
+    // Clear data ready, data sent, and retransmit
+    NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);     
+
+    // No Auto Acknowledgment on all data pipes
+    NRF24L01_WriteReg(NRF24L01_01_EN_AA, 0x00);      
+
     NRF24L01_WriteReg(NRF24L01_11_RX_PW_P0, CX10_packet_length); // rx pipe 0
     NRF24L01_WriteReg(NRF24L01_02_EN_RXADDR, 0x01);  // Enable data pipe 0 only
     NRF24L01_SetBitrate(NRF24L01_BR_1M);             // 1Mbps
     NRF24L01_SetPower(RF_POWER);
-    NRF24L01_WriteReg(NRF24L01_1C_DYNPD, 0x00);       // Disable dynamic payload length on all pipes
+
+    // Disable dynamic payload length on all pipes
+    NRF24L01_WriteReg(NRF24L01_1C_DYNPD, 0x00);       
+
     NRF24L01_WriteReg(NRF24L01_1D_FEATURE, 0x00);     // Set feature bits
+
     delay(150);
 }
 
@@ -243,7 +255,8 @@ static void CX10_bind()
     uint32_t timeout;
     while(!bound) {
         NRF24L01_SetTxRxMode(TX_EN);
-        XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP));
+        XN297_Configure(
+                _BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP));
         NRF24L01_WriteReg(NRF24L01_05_RF_CH, CX10_RF_BIND_CHANNEL);
         NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
         NRF24L01_FlushTx();
@@ -259,10 +272,14 @@ static void CX10_bind()
                 NRF24L01_SetTxRxMode(RX_EN);
                 NRF24L01_WriteReg(NRF24L01_07_STATUS, 0x70);
                 NRF24L01_FlushRx();
-                XN297_Configure(_BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | _BV(NRF24L01_00_PWR_UP) | _BV(NRF24L01_00_PRIM_RX));
+                XN297_Configure(
+                        _BV(NRF24L01_00_EN_CRC) | _BV(NRF24L01_00_CRCO) | 
+                        _BV(NRF24L01_00_PWR_UP) | _BV(NRF24L01_00_PRIM_RX));
                 timeout = millis()+5;
                 while(millis()<timeout) {
-                    if (NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_RX_DR)) { // data received from aircraft
+
+                    // data received from aircraft
+                    if (NRF24L01_ReadReg(NRF24L01_07_STATUS) & _BV(NRF24L01_07_RX_DR)) { 
                         XN297_ReadPayload(packet, CX10_packet_length);
                         if ( packet[9] == 0x01)
                         bound = true;
@@ -343,7 +360,10 @@ void loop()
                 ppm[ppm_cnt]=val;
             }
             else
-                Serial.print("x"); // prints "x" if it could not decipher the command. Other values in string may still be assigned.
+
+            // prints "x" if it could not decipher the command. Other
+            // values in string may still be assigned.
+            Serial.print("x"); 
             Serial.print(";"); // a separator between ppm values
             p = strtok_r(NULL,",",&i);
             ppm_cnt+=1;
