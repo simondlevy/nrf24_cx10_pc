@@ -13,6 +13,8 @@
  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#pragma once
+
 static uint8_t xn297_addr_len;
 static uint8_t xn297_tx_addr[5];
 static uint8_t xn297_rx_addr[5];

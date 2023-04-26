@@ -13,6 +13,8 @@
  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "XN297_emu.h"
+
 #define CX10_GREEN_PACKET_LENGTH 15
 #define CX10_BLUE_PACKET_LENGTH 19
 #define CX10_BLUE_PACKET_PERIOD 6000
