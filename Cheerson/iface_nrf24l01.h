@@ -13,8 +13,7 @@
  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef _IFACE_NRF24L01_H_
-#define _IFACE_NRF24L01_H_
+#pragma once
 
 #include <Arduino.h>
 
@@ -118,5 +117,3 @@ enum TX_Power {
 #define FLUSH_TX      0xE1
 #define FLUSH_RX      0xE2
 #define REUSE_TX_PL   0xE3
-
-#endif
