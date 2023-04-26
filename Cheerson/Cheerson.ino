@@ -140,6 +140,47 @@ static char* c = new char[200 + 1]; // match 200 characters reserved for inputSt
 static char* errpt;
 static uint8_t ppm_cnt;
 
+static void set_txid(bool renew)
+{
+    uint8_t i;
+    for(i=0; i<4; i++)
+        transmitterID[i] = EEPROM.read(ee_TXID0+i);
+    if(renew || (transmitterID[0]==0xFF && transmitterID[1]==0x0FF)) {
+        for(i=0; i<4; i++) {
+            transmitterID[i] = random() & 0xFF;
+            EEPROM.update(ee_TXID0+i, transmitterID[i]); 
+        }            
+    }
+}
+
+static void selectProtocol()
+{
+    // Modified and commented out lines so that Cheerson CX-10 Blue is always selected
+  
+    // wait for multiple complete ppm frames
+    ppm_ok = false;
+
+    // startup stick commands
+    //if(ppm[RUDDER] < PPM_MIN_COMMAND)        // Rudder left
+    set_txid(true);                      // Renew Transmitter ID
+    
+    // update eeprom 
+    EEPROM.update(ee_PROTOCOL_ID, current_protocol);
+}
+
+static void init_protocol()
+{
+    switch(current_protocol) {
+
+        case PROTO_CX10_GREEN:
+        case PROTO_CX10_BLUE:
+            CX10_init();
+            CX10_bind();
+            Serial.println("cx10-initialized and bound");
+            break;
+    }
+}
+
 void setup()
 {
     randomSeed((analogRead(A4) & 0x1F) | (analogRead(A5) << 5));
@@ -251,43 +292,4 @@ void loop()
     };
 }
 
-void set_txid(bool renew)
-{
-    uint8_t i;
-    for(i=0; i<4; i++)
-        transmitterID[i] = EEPROM.read(ee_TXID0+i);
-    if(renew || (transmitterID[0]==0xFF && transmitterID[1]==0x0FF)) {
-        for(i=0; i<4; i++) {
-            transmitterID[i] = random() & 0xFF;
-            EEPROM.update(ee_TXID0+i, transmitterID[i]); 
-        }            
-    }
-}
 
-void selectProtocol()
-{
-    // Modified and commented out lines so that Cheerson CX-10 Blue is always selected
-  
-    // wait for multiple complete ppm frames
-    ppm_ok = false;
-
-    // startup stick commands
-    //if(ppm[RUDDER] < PPM_MIN_COMMAND)        // Rudder left
-    set_txid(true);                      // Renew Transmitter ID
-    
-    // update eeprom 
-    EEPROM.update(ee_PROTOCOL_ID, current_protocol);
-}
-
-void init_protocol()
-{
-    switch(current_protocol) {
-
-        case PROTO_CX10_GREEN:
-        case PROTO_CX10_BLUE:
-            CX10_init();
-            CX10_bind();
-            Serial.println("cx10-initialized and bound");
-            break;
-    }
-}
