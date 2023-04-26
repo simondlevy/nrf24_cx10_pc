@@ -49,7 +49,7 @@ class SerialTester:
         if data:
 
             # String responses from Arduino Uno are prefaced with [AU]
-            print('[AU]: '+data)
+            print('[AU]: '+ data.decode())
 
         if self.kb.kbhit():
 
@@ -89,7 +89,7 @@ class SerialTester:
                        (self.throttle, self.roll, self.pitch, self.yaw))
             # string commands to the Arduino are prefaced with  [PC]
             print('[PC]: '+command)
-            self.arduino.write(command+'\n')
+            self.arduino.write((command + '\n').encode())
 
     def close(self):
 
