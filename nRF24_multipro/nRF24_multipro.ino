@@ -122,16 +122,8 @@ enum chan_order{
 
 // supported protocols
 enum {
-    PROTO_V2X2 = 0,     // WLToys V2x2, JXD JD38x, JD39x, JJRC H6C, Yizhan Tarantula X6 ...
-    PROTO_CG023,        // EAchine CG023, CG032, 3D X4
     PROTO_CX10_BLUE,    // Cheerson CX-10 blue board, newer red board, CX-10A, CX-10C, Floureon FX-10, CX-Stars (todo: add DM007 variant)
     PROTO_CX10_GREEN,   // Cheerson CX-10 green board
-    PROTO_H7,           // EAchine H7, MoonTop M99xx
-    PROTO_BAYANG,       // EAchine H8(C) mini, H10, BayangToys X6, X7, X9, JJRC JJ850, Floureon H101
-    PROTO_SYMAX5C1,     // Syma X5C-1 (not older X5C), X11, X11C, X12
-    PROTO_YD829,        // YD-829, YD-829C, YD-822 ...
-    PROTO_H8_3D,        // EAchine H8 mini 3D, JJRC H20, H22
-    PROTO_END
 };
 
 // EEPROM locations
@@ -163,10 +155,11 @@ uint8_t ppm_cnt;
 
 void setup()
 {
-    
     randomSeed((analogRead(A4) & 0x1F) | (analogRead(A5) << 5));
+
     pinMode(ledPin, OUTPUT);
     digitalWrite(ledPin, LOW); //start LED off
+
     pinMode(PPM_pin, INPUT);
     pinMode(MOSI_pin, OUTPUT);
     pinMode(SCK_pin, OUTPUT);
@@ -184,6 +177,7 @@ void setup()
 
     // Serial port input/output setup
     Serial.begin(115200);
+
     // reserve 200 bytes for the inputString:
     inputString.reserve(200);
 }
@@ -205,33 +199,15 @@ void loop()
         init_protocol();
         Serial.println("init protocol complete.");
     }
+
     // process protocol
-    //Serial.println("processing protocol.");
-    switch(current_protocol) {
-        case PROTO_CG023: 
-        case PROTO_YD829:
-            timeout = process_CG023();
-            break;
-        case PROTO_V2X2: 
-            timeout = process_V2x2();
-            break;
+    switch (current_protocol) {
         case PROTO_CX10_GREEN:
         case PROTO_CX10_BLUE:
             timeout = process_CX10(); // returns micros()+6000 for time to next packet. 
             break;
-        case PROTO_H7:
-            timeout = process_H7();
-            break;
-        case PROTO_BAYANG:
-            timeout = process_Bayang();
-            break;
-        case PROTO_SYMAX5C1:
-            timeout = process_SymaX(); 
-            break;
-        case PROTO_H8_3D:
-            timeout = process_H8_3D();
-            break;
     }
+
     // updates ppm values out of ISR
     //update_ppm();
     overrun_cnt=0;
@@ -319,36 +295,12 @@ void selectProtocol()
 void init_protocol()
 {
     switch(current_protocol) {
-        case PROTO_CG023:
-        case PROTO_YD829:
-            CG023_init();
-            CG023_bind();
-            break;
-        case PROTO_V2X2:
-            V2x2_init();
-            V2x2_bind();
-            break;
+
         case PROTO_CX10_GREEN:
         case PROTO_CX10_BLUE:
             CX10_init();
             CX10_bind();
             Serial.println("cx10-initialized and bound");
-            break;
-        case PROTO_H7:
-            H7_init();
-            H7_bind();
-            break;
-        case PROTO_BAYANG:
-            Bayang_init();
-            Bayang_bind();
-            break;
-        case PROTO_SYMAX5C1:
-            Symax_init();
-            SymaX_bind();
-            break;
-        case PROTO_H8_3D:
-            H8_3D_init();
-            H8_3D_bind();
             break;
     }
 }
