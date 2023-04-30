@@ -27,7 +27,7 @@ enum {
     PROTO_CX10_GREEN,   // Cheerson CX-10 green board
 };
 
-static uint8_t current_protocol = PROTO_CX10_GREEN; // XXX
+static uint8_t current_protocol = PROTO_CX10_BLUE; // XXX
 
 //SPI Comm.pins with nRF24L01
 static const uint8_t MOSI_pin = 3; // D3
